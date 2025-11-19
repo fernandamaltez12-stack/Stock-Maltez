@@ -1,0 +1,138 @@
+
+CREATE DATABASE IF NOT EXISTS Control_Stock;
+USE Control_Stock;
+
+
+CREATE TABLE dim_producto (
+    IDProducto INT AUTO_INCREMENT PRIMARY KEY,
+    SKU VARCHAR(50) NOT NULL,
+    NombreProducto VARCHAR(100) NOT NULL,
+    Marca VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE dim_sucursal (
+    IDSucursal INT AUTO_INCREMENT PRIMARY KEY,
+    NombreSucursal VARCHAR(100) NOT NULL,
+    Direccion VARCHAR(150) NOT NULL,
+    RUT VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE dim_unidad_medida (
+    IDUnidadMedida INT AUTO_INCREMENT PRIMARY KEY,
+    NombreUnidad VARCHAR(50) NOT NULL,
+    Abreviatura VARCHAR(10) NOT NULL,
+    Tipo VARCHAR(30) NOT NULL,
+    Descripcion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE dim_tipo_sucursal (
+    IDTipoSucursal INT AUTO_INCREMENT PRIMARY KEY,
+    NombreTipoSucursal VARCHAR(50) NOT NULL,
+    Descripcion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE dim_proveedor (
+    IDProveedor INT AUTO_INCREMENT PRIMARY KEY,
+    RUT VARCHAR(20) NOT NULL,
+    Telefono VARCHAR(20) NOT NULL,
+    Direccion VARCHAR(150) NOT NULL,
+    Ciudad VARCHAR(50) NOT NULL,
+    Pais VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE dim_canal_venta (
+    IDCanal INT AUTO_INCREMENT PRIMARY KEY,
+    NombreCanal VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE dim_promocion (
+    IDPromocion INT AUTO_INCREMENT PRIMARY KEY,
+    NombrePromocion VARCHAR(100) NOT NULL,
+    FechaInicio DATE NOT NULL,
+    FechaFin DATE NOT NULL
+);
+
+CREATE TABLE dim_movimiento (
+    IDMovimiento INT AUTO_INCREMENT PRIMARY KEY,
+    TipoMovimiento VARCHAR(30) NOT NULL,
+    Descripcion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE dim_region (
+    IDRegion INT AUTO_INCREMENT PRIMARY KEY,
+    NombreRegion VARCHAR(50) NOT NULL,
+    Pais VARCHAR(50) NOT NULL,
+    CodigoPostal VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE dim_fecha (
+    IDFecha INT AUTO_INCREMENT PRIMARY KEY,
+    FechaCompleta DATE NOT NULL,
+    Dia INT NOT NULL,
+    Mes INT NOT NULL,
+    Anio INT NOT NULL,
+    NombreMes VARCHAR(15) NOT NULL
+);
+
+CREATE TABLE dim_categoria (
+    IDCategoria INT AUTO_INCREMENT PRIMARY KEY,
+    NombreCategoria VARCHAR(50) NOT NULL,
+    Descripcion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE dim_subcategoria (
+    IDSubcategoria INT AUTO_INCREMENT PRIMARY KEY,
+    NombreSubcategoria VARCHAR(50) NOT NULL,
+    Descripcion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE dim_estado_producto (
+    IDEstadoProducto INT AUTO_INCREMENT PRIMARY KEY,
+    Estado VARCHAR(50) NOT NULL,
+    Descripcion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE dim_reponedor (
+    IDReponedor INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(50) NOT NULL,
+    Apellido VARCHAR(50) NOT NULL,
+    CI VARCHAR(15) NOT NULL,
+    Turno VARCHAR(20) NOT NULL
+);
+
+
+CREATE TABLE fact_stock (
+    IDFactStock INT AUTO_INCREMENT PRIMARY KEY,
+    IDProducto INT NOT NULL,
+    IDSucursal INT NOT NULL,
+    IDFecha INT NOT NULL,
+    IDPromocion INT NOT NULL,
+    IDUnidadMedida INT NOT NULL,
+    IDTipoSucursal INT NOT NULL,
+    IDProveedor INT NOT NULL,
+    IDCanal INT NOT NULL,
+    IDMovimiento INT NOT NULL,
+    IDRegion INT NOT NULL,
+    IDCategoria INT NOT NULL,
+    IDSubcategoria INT NOT NULL,
+    IDEstadoProducto INT NOT NULL,
+    IDReponedor INT NOT NULL,
+    StockDiario DECIMAL(10,2) NOT NULL,
+    VentasReales DECIMAL(10,2) NOT NULL,
+    VentasEstimadas DECIMAL(10,2) NOT NULL,
+    
+    FOREIGN KEY (IDProducto) REFERENCES dim_producto(IDProducto),
+    FOREIGN KEY (IDSucursal) REFERENCES dim_sucursal(IDSucursal),
+    FOREIGN KEY (IDFecha) REFERENCES dim_fecha(IDFecha),
+    FOREIGN KEY (IDPromocion) REFERENCES dim_promocion(IDPromocion),
+    FOREIGN KEY (IDUnidadMedida) REFERENCES dim_unidad_medida(IDUnidadMedida),
+    FOREIGN KEY (IDTipoSucursal) REFERENCES dim_tipo_sucursal(IDTipoSucursal),
+    FOREIGN KEY (IDProveedor) REFERENCES dim_proveedor(IDProveedor),
+    FOREIGN KEY (IDCanal) REFERENCES dim_canal_venta(IDCanal),
+    FOREIGN KEY (IDMovimiento) REFERENCES dim_movimiento(IDMovimiento),
+    FOREIGN KEY (IDRegion) REFERENCES dim_region(IDRegion),
+    FOREIGN KEY (IDCategoria) REFERENCES dim_categoria(IDCategoria),
+    FOREIGN KEY (IDSubcategoria) REFERENCES dim_subcategoria(IDSubcategoria),
+    FOREIGN KEY (IDEstadoProducto) REFERENCES dim_estado_producto(IDEstadoProducto),
+    FOREIGN KEY (IDReponedor) REFERENCES dim_reponedor(IDReponedor)
+);
