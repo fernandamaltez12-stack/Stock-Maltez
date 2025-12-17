@@ -1,0 +1,202 @@
+ ----------------------------------------------- CREACION DE FUNCIONES ----------------------------------------------------------
+
+DELIMITER //
+
+CREATE FUNCTION DiasDeCobertura (
+    pStock DECIMAL(10,2),
+    pVentasEstimadas DECIMAL(10,2)
+)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    IF pVentasEstimadas = 0 THEN
+        RETURN NULL;
+    END IF;
+
+    RETURN pStock / pVentasEstimadas;
+END;
+//
+
+DELIMITER ;
+DELIMITER //
+
+CREATE FUNCTION EstadoStock (
+    pStock DECIMAL(10,2),
+    pVentasEstimadas DECIMAL(10,2)
+)
+RETURNS VARCHAR(30)
+DETERMINISTIC
+BEGIN
+    DECLARE dias DECIMAL(10,2);
+
+    IF pVentasEstimadas = 0 THEN
+        RETURN 'Sin ventas estimadas';
+    END IF;
+
+    SET dias = pStock / pVentasEstimadas;
+
+    IF dias < 3 THEN
+        RETURN 'Riesgo de quiebre';
+    ELSEIF dias BETWEEN 3 AND 10 THEN
+        RETURN 'Stock suficiente';
+    ELSE
+        RETURN 'Sobrestock';
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE FUNCTION DiferenciaVentas (
+    pVentasReales DECIMAL(10,2),
+    pVentasEstimadas DECIMAL(10,2)
+)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    RETURN pVentasReales - pVentasEstimadas;
+END;
+//
+
+DELIMITER ;
+
+
+/*----------------------------------------------------- CREACION DE VISTAS --------------------------------------------------------*/
+
+CREATE VIEW VistaStockProducto AS
+SELECT
+    p.NombreProducto,
+    s.NombreSucursal,
+    f.FechaCompleta,
+    fs.StockDiario
+FROM fact_stock fs
+JOIN dim_producto p ON fs.IDProducto = p.IDProducto
+JOIN dim_sucursal s ON fs.IDSucursal = s.IDSucursal
+JOIN dim_fecha f ON fs.IDFecha = f.IDFecha;
+
+CREATE VIEW VistaVentasProducto AS
+SELECT
+    p.NombreProducto,
+    s.NombreSucursal,
+    f.FechaCompleta,
+    fs.VentasReales,
+    fs.VentasEstimadas,
+    DiferenciaVentas(fs.VentasReales, fs.VentasEstimadas) AS Diferencia
+FROM fact_stock fs
+JOIN dim_producto p ON fs.IDProducto = p.IDProducto
+JOIN dim_sucursal s ON fs.IDSucursal = s.IDSucursal
+JOIN dim_fecha f ON fs.IDFecha = f.IDFecha;
+
+CREATE VIEW VistaStockTipoSucursal AS
+SELECT
+    ts.NombreTipoSucursal,
+    fs.StockDiario,
+    fs.VentasReales,
+    fs.VentasEstimadas
+FROM fact_stock fs
+JOIN dim_tipo_sucursal ts ON fs.IDTipoSucursal = ts.IDTipoSucursal;
+
+CREATE VIEW VistaStockVtaPorProveedor AS
+SELECT
+    pr.RUT,
+    p.NombreProducto,
+    fs.StockDiario,
+    fs.VentasReales,
+    fs.VentasEstimadas
+FROM fact_stock fs
+JOIN dim_proveedor pr ON fs.IDProveedor = pr.IDProveedor
+JOIN dim_producto p ON fs.IDProducto = p.IDProducto;
+
+CREATE VIEW VistaDiasCobertura AS
+SELECT
+    p.NombreProducto,
+    s.NombreSucursal,
+    f.FechaCompleta,
+    fs.StockDiario,
+    fs.VentasEstimadas,
+    DiasDeCobertura(fs.StockDiario, fs.VentasEstimadas) AS DiasCobertura,
+    EstadoStock(fs.StockDiario, fs.VentasEstimadas) AS EstadoStock
+FROM fact_stock fs
+JOIN dim_producto p ON fs.IDProducto = p.IDProducto
+JOIN dim_sucursal s ON fs.IDSucursal = s.IDSucursal
+JOIN dim_fecha f ON fs.IDFecha = f.IDFecha;
+
+
+CREATE VIEW VistaQuiebres AS
+SELECT
+    p.NombreProducto,
+    s.NombreSucursal,
+    f.FechaCompleta,
+    fs.StockDiario,
+    fs.VentasEstimadas
+FROM fact_stock fs
+JOIN dim_producto p ON fs.IDProducto = p.IDProducto
+JOIN dim_sucursal s ON fs.IDSucursal = s.IDSucursal
+JOIN dim_fecha f ON fs.IDFecha = f.IDFecha
+WHERE fs.StockDiario < fs.VentasEstimadas;
+
+
+/*----------------------------------------------------- CREACION DE SP --------------------------------------------------------*/
+
+
+DELIMITER //
+
+CREATE PROCEDURE RegistrarVentaReal (
+    IN pIDFactStock INT,
+    IN pCantidad DECIMAL(10,2)
+)
+BEGIN
+    UPDATE fact_stock
+    SET VentasReales = VentasReales + pCantidad
+    WHERE IDFactStock = pIDFactStock;
+END;
+//
+
+DELIMITER ;
+DELIMITER //
+
+CREATE PROCEDURE ActualizarVentaEstimada (
+    IN pIDFactStock INT,
+    IN pVentaEstimada DECIMAL(10,2)
+)
+BEGIN
+    UPDATE fact_stock
+    SET VentasEstimadas = pVentaEstimada
+    WHERE IDFactStock = pIDFactStock;
+END;
+//
+
+DELIMITER ;
+/*----------------------------------------------------- CREACION DE TRIGGERS --------------------------------------------------------*/
+
+DELIMITER //
+
+CREATE TRIGGER TriggerValidarStockNegativo
+BEFORE UPDATE ON fact_stock
+FOR EACH ROW
+BEGIN
+    IF NEW.StockDiario < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El stock no puede ser negativo';
+    END IF;
+END;
+//
+
+DELIMITER ;
+DELIMITER //
+
+CREATE TRIGGER TriggerAjustarStockVentas
+AFTER UPDATE ON fact_stock
+FOR EACH ROW
+BEGIN
+    IF NEW.VentasReales <> OLD.VentasReales THEN
+        UPDATE fact_stock
+        SET StockDiario = StockDiario - (NEW.VentasReales - OLD.VentasReales)
+        WHERE IDFactStock = NEW.IDFactStock;
+    END IF;
+END;
+//
+
+DELIMITER ;
