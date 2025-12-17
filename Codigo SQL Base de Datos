@@ -1,0 +1,86 @@
+--------------------------------- Insertamos los datos a las tablas--------------------------------------
+
+
+INSERT INTO dim_producto (SKU, NombreProducto, Marca) VALUES
+('SKU-001', 'Yerba Mate 1kg', 'Canarias'),
+('SKU-002', 'Arroz Largo Fino 1kg', 'Saman'),
+('SKU-003', 'Aceite Girasol 900ml', 'Cocinero');
+INSERT INTO dim_sucursal (NombreSucursal, Direccion, RUT) VALUES
+('Sucursal Centro', 'Av. 18 de Julio 1234', '210123450019'),
+('Sucursal Pocitos', 'Bvar. España 2456', '210123450027'),
+('Sucursal Cordón', 'Av. Rivera 1789', '210123450035');
+
+INSERT INTO dim_unidad_medida (NombreUnidad, Abreviatura, Tipo) VALUES
+('Kilogramo', 'kg', 'Peso'),
+('Litro', 'lt', 'Volumen'),
+('Unidad', 'un', 'Cantidad');
+
+INSERT INTO dim_tipo_sucursal (NombreTipoSucursal) VALUES
+('Supermercado'),
+('Autoservicio'),
+('Mayorista');
+
+
+
+INSERT INTO dim_proveedor (NombreProveedor, RUT, Telefono, Direccion, Ciudad, Pais) VALUES
+('Distribuidora Río de la Plata', '214567890012', '24001234', 'Camino Carrasco 4567', 'Montevideo', 'Uruguay'),
+('Alimentos del Sur', '215678901234', '22004567', 'Ruta 5 Km 25', 'Canelones', 'Uruguay'),
+('Proveedor Nacional SA', '216789012345', '23007890', 'Zona Industrial', 'San José', 'Uruguay');
+
+INSERT INTO dim_canal_venta (NombreCanal) VALUES
+('Presencial'),
+('Online'),
+('Mayorista');
+
+INSERT INTO dim_promocion (NombrePromocion, FechaInicio, FechaFin) VALUES
+('Promo Invierno', '2025-06-01', '2025-06-30'),
+('Descuento Fin de Semana', '2025-07-05', '2025-07-07'),
+('Sin Promoción', '2025-01-01', '2025-12-31');
+
+
+INSERT INTO dim_movimiento (TipoMovimiento) VALUES
+('Ingreso'),
+('Venta'),
+('Ajuste');
+
+INSERT INTO dim_region (NombreRegion, Pais, CodigoPostal) VALUES
+('Montevideo', 'Uruguay', '11000'),
+('Canelones', 'Uruguay', '90000'),
+('San José', 'Uruguay', '80000');
+
+
+INSERT INTO dim_fecha (FechaCompleta, Dia, Mes, Anio, NombreMes) VALUES
+('2025-06-15', 15, 6, 2025, 'Junio'),
+('2025-06-16', 16, 6, 2025, 'Junio'),
+('2025-06-17', 17, 6, 2025, 'Junio');
+
+INSERT INTO dim_categoria (NombreCategoria) VALUES
+('Alimentos'),
+('Bebidas'),
+('Limpieza');
+
+INSERT INTO dim_subcategoria (NombreSubcategoria) VALUES
+('Yerba'),
+('Aceites'),
+('Arroz');
+
+
+INSERT INTO dim_estado_producto (Estado) VALUES
+('Disponible'),
+('Sin Stock'),
+('Discontinuado');
+
+INSERT INTO dim_reponedor (Nombre, Apellido, CI, Turno) VALUES
+('Juan', 'Pérez', '45678901', 'Mañana'),
+('Lucía', 'Gómez', '51234567', 'Tarde'),
+('Martín', 'Rodríguez', '48901234', 'Noche');
+
+INSERT INTO fact_stock (
+    IDProducto, IDSucursal, IDFecha, IDPromocion, IDUnidadMedida,
+    IDTipoSucursal, IDProveedor, IDCanal, IDMovimiento, IDRegion,
+    IDCategoria, IDSubcategoria, IDEstadoProducto, IDReponedor,
+    StockDiario, VentasReales, VentasEstimadas
+) VALUES
+(1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 120.00, 30.00, 35.00),
+(2, 2, 2, 2, 1, 2, 2, 1, 2, 1, 1, 3, 1, 2, 200.00, 45.00, 50.00),
+(3, 3, 3, 3, 2, 1, 3, 2, 1, 2, 1, 2, 1, 3, 80.00, 20.00, 25.00);
