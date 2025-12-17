@@ -20,18 +20,17 @@ CREATE TABLE dim_unidad_medida (
     IDUnidadMedida INT AUTO_INCREMENT PRIMARY KEY,
     NombreUnidad VARCHAR(50) NOT NULL,
     Abreviatura VARCHAR(10) NOT NULL,
-    Tipo VARCHAR(30) NOT NULL,
-    Descripcion VARCHAR(100) NOT NULL
+    Tipo VARCHAR(30) NOT NULL 
 );
 
 CREATE TABLE dim_tipo_sucursal (
     IDTipoSucursal INT AUTO_INCREMENT PRIMARY KEY,
-    NombreTipoSucursal VARCHAR(50) NOT NULL,
-    Descripcion VARCHAR(100) NOT NULL
+    NombreTipoSucursal VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE dim_proveedor (
     IDProveedor INT AUTO_INCREMENT PRIMARY KEY,
+    NombreProveedor VARCHAR(100) NOT NULL,
     RUT VARCHAR(20) NOT NULL,
     Telefono VARCHAR(20) NOT NULL,
     Direccion VARCHAR(150) NOT NULL,
@@ -53,8 +52,7 @@ CREATE TABLE dim_promocion (
 
 CREATE TABLE dim_movimiento (
     IDMovimiento INT AUTO_INCREMENT PRIMARY KEY,
-    TipoMovimiento VARCHAR(30) NOT NULL,
-    Descripcion VARCHAR(100) NOT NULL
+    TipoMovimiento VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE dim_region (
@@ -75,20 +73,17 @@ CREATE TABLE dim_fecha (
 
 CREATE TABLE dim_categoria (
     IDCategoria INT AUTO_INCREMENT PRIMARY KEY,
-    NombreCategoria VARCHAR(50) NOT NULL,
-    Descripcion VARCHAR(100) NOT NULL
+    NombreCategoria VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE dim_subcategoria (
     IDSubcategoria INT AUTO_INCREMENT PRIMARY KEY,
-    NombreSubcategoria VARCHAR(50) NOT NULL,
-    Descripcion VARCHAR(100) NOT NULL
+    NombreSubcategoria VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE dim_estado_producto (
     IDEstadoProducto INT AUTO_INCREMENT PRIMARY KEY,
-    Estado VARCHAR(50) NOT NULL,
-    Descripcion VARCHAR(100) NOT NULL
+    Estado VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE dim_reponedor (
