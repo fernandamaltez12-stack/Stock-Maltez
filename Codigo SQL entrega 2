@@ -116,7 +116,8 @@ SELECT
     f.FechaCompleta,
     fs.StockDiario,
     fs.VentasEstimadas,
-    DiasDeCobertura(fs.StockDiario, fs.VentasEstimadas) AS DiasCobertura,
+IFNULL(
+    DiasDeCobertura(fs.StockDiario, fs.VentasEstimadas),0) AS DiasCobertura,
     EstadoStock(fs.StockDiario, fs.VentasEstimadas) AS EstadoStock
 FROM fact_stock fs
 JOIN dim_producto p ON fs.IDProducto = p.IDProducto
@@ -186,17 +187,17 @@ END;
 
 DELIMITER ;
 DELIMITER //
-
 CREATE TRIGGER TriggerAjustarStockVentas
-AFTER UPDATE ON fact_stock
+BEFORE UPDATE ON fact_stock
 FOR EACH ROW
 BEGIN
     IF NEW.VentasReales <> OLD.VentasReales THEN
-        UPDATE fact_stock
-        SET StockDiario = StockDiario - (NEW.VentasReales - OLD.VentasReales)
-        WHERE IDFactStock = NEW.IDFactStock;
+        SET NEW.StockDiario =
+            OLD.StockDiario - (NEW.VentasReales - OLD.VentasReales);
     END IF;
 END;
+
+
 //
 
 DELIMITER ;
