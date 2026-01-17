@@ -2,6 +2,7 @@ CREATE DATABASE IF NOT EXISTS Control_Stock;
 USE Control_Stock;
 
 
+
 CREATE TABLE dim_producto (
     IDProducto INT AUTO_INCREMENT PRIMARY KEY,
     SKU VARCHAR(50) NOT NULL,
